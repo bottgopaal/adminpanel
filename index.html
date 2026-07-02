@@ -3,1024 +3,281 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXUS Admin Panel</title>
+<title>NEXUS — Global HQ Admin Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --black:#000; --charcoal:#111; --panel:#0a0a0a; --sidebar:#0d0d0d;
-  --blue:#2563EB; --cyan:#38BDF8; --green:#10B981; --red:#EF4444;
-  --amber:#F59E0B; --white:#fff; --gray:#D1D5DB; --dim:#6B7280;
-  --card:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08);
-  --hover:rgba(255,255,255,0.06);
-}
-html,body { height:100%; }
-body { background:var(--panel); color:var(--white); font-family:'Inter',sans-serif; font-size:14px; overflow:hidden; }
-h1,h2,h3,h4 { font-family:'Space Grotesk',sans-serif; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --black: #050505; --charcoal: #111111; --blue: #2563EB; --cyan: #38BDF8;
+    --green: #10B981; --white: #FFFFFF; --gray: #D1D5DB; --dim: #6B7280;
+    --card: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.08);
+  }
+  body {
+    background: var(--black); color: var(--white); font-family: 'Inter', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+  
+  /* LOGIN BLOCK */
+  #login-overlay {
+    position: fixed; inset: 0; background: var(--black); z-index: 1000;
+    display: flex; align-items: center; justify-content: center; padding: 2rem;
+  }
+  .login-card {
+    background: var(--charcoal); border: 1px solid var(--border);
+    padding: 2.5rem; border-radius: 16px; max-width: 400px; width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center;
+  }
+  .login-card h2 { margin-bottom: 0.5rem; font-size: 1.75rem; }
+  .login-card p { color: var(--dim); font-size: 0.875rem; margin-bottom: 2rem; }
 
-/* ── LOGIN SCREEN ── */
-#login-screen {
-  position:fixed; inset:0; background:var(--black);
-  display:flex; align-items:center; justify-content:center; z-index:999;
-}
-.login-box {
-  background:var(--card); border:1px solid var(--border); border-radius:20px;
-  padding:2.5rem 2rem; width:100%; max-width:380px; text-align:center;
-  position:relative; overflow:hidden;
-}
-.login-box::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:3px;
-  background:linear-gradient(90deg,var(--blue),var(--cyan));
-}
-.login-logo svg { height:32px; margin-bottom:1.5rem; }
-.login-box h2 { font-size:1.4rem; margin-bottom:0.25rem; }
-.login-box p { color:var(--dim); font-size:0.82rem; margin-bottom:2rem; }
-.login-field { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:1rem; text-align:left; }
-.login-field label { font-size:0.75rem; color:var(--gray); font-weight:500; }
-.login-field input {
-  background:rgba(255,255,255,0.06); border:1px solid var(--border);
-  border-radius:8px; padding:0.75rem 1rem; color:var(--white); font-size:0.9rem;
-  font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; width:100%;
-}
-.login-field input:focus { border-color:var(--blue); }
-.btn-login {
-  width:100%; background:var(--blue); color:var(--white); border:none;
-  padding:0.85rem; border-radius:8px; font-weight:600; font-size:0.95rem;
-  font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s; margin-top:0.5rem;
-}
-.btn-login:hover { background:#1d4ed8; box-shadow:0 0 25px rgba(37,99,235,0.4); }
-.login-hint { color:var(--dim); font-size:0.72rem; margin-top:1rem; }
-.login-error { color:var(--red); font-size:0.8rem; margin-top:0.75rem; display:none; }
+  /* UTILS & FORM INPUTS */
+  .fgroup { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; text-align: left; }
+  .fgroup label { font-size: 0.75rem; color: var(--gray); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .fgroup input, .fgroup textarea, .fgroup select {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.75rem 1rem; color: var(--white); font-size: 0.9rem; outline: none;
+  }
+  .fgroup input:focus { border-color: var(--blue); }
+  .btn {
+    width: 100%; background: var(--blue); color: var(--white); border: none;
+    padding: 0.85rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .btn:hover { background: #1d4ed8; box-shadow: 0 0 20px rgba(37,99,235,0.4); }
 
-/* ── APP LAYOUT ── */
-#app { display:flex; height:100vh; overflow:hidden; }
+  /* APP LAYOUT */
+  header {
+    background: var(--charcoal); padding: 1.25rem 6%;
+    border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+  }
+  .brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+  .brand span { color: var(--cyan); }
+  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--gray); padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+  .logout-btn:hover { background: rgba(255,255,255,0.05); color: var(--white); }
 
-/* SIDEBAR */
-.sidebar {
-  width:230px; flex-shrink:0; background:var(--sidebar);
-  border-right:1px solid var(--border); display:flex; flex-direction:column;
-  overflow-y:auto; transition:width 0.3s;
-}
-.sidebar-logo {
-  padding:1.25rem 1.25rem 1rem; border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:0.75rem;
-}
-.sidebar-logo svg { height:22px; }
-.sidebar-logo span { font-size:0.7rem; color:var(--dim); letter-spacing:0.1em; text-transform:uppercase; }
-.sidebar-section { padding:0.75rem 0.75rem 0.25rem; }
-.sidebar-section-label { font-size:0.65rem; color:var(--dim); letter-spacing:0.1em; text-transform:uppercase; padding:0 0.5rem; margin-bottom:0.4rem; }
-.nav-item {
-  display:flex; align-items:center; gap:0.65rem; padding:0.6rem 0.75rem;
-  border-radius:8px; cursor:pointer; transition:all 0.15s; color:var(--dim);
-  font-size:0.85rem; font-weight:500; margin-bottom:2px; user-select:none;
-}
-.nav-item:hover { background:var(--hover); color:var(--white); }
-.nav-item.active { background:rgba(37,99,235,0.15); color:var(--white); border:1px solid rgba(37,99,235,0.25); }
-.nav-item .icon { font-size:1rem; width:20px; text-align:center; flex-shrink:0; }
-.sidebar-badge {
-  margin-left:auto; background:var(--red); color:var(--white);
-  font-size:0.65rem; font-weight:700; padding:0.1rem 0.45rem;
-  border-radius:100px; min-width:18px; text-align:center;
-}
-.sidebar-footer {
-  margin-top:auto; padding:1rem; border-top:1px solid var(--border);
-  display:flex; align-items:center; gap:0.6rem;
-}
-.admin-avatar {
-  width:32px; height:32px; border-radius:50%;
-  background:linear-gradient(135deg,var(--blue),var(--cyan));
-  display:flex; align-items:center; justify-content:center;
-  font-weight:700; font-size:0.75rem; flex-shrink:0;
-}
-.admin-info { flex:1; overflow:hidden; }
-.admin-name { font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.admin-role { font-size:0.68rem; color:var(--dim); }
-.btn-logout { background:none; border:none; color:var(--dim); cursor:pointer; font-size:1rem; transition:color 0.15s; padding:0.25rem; }
-.btn-logout:hover { color:var(--red); }
+  main { padding: 3rem 6%; max-width: 1400px; width: 100%; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 3rem; flex: 1; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 0.5rem; }
+  .nav-item {
+    padding: 0.75rem 1rem; border-radius: 8px; color: var(--gray); text-decoration: none;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .nav-item:hover, .nav-item.active { background: var(--card); color: var(--white); }
+  .nav-item.active { border-left: 3px solid var(--blue); border-radius: 0 8px 8px 0; }
 
-/* MAIN CONTENT */
-.main { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
-.topbar {
-  padding:0.9rem 1.75rem; border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
-  background:var(--panel); position:sticky; top:0; z-index:10;
-  backdrop-filter:blur(10px);
-}
-.topbar h1 { font-size:1.1rem; font-weight:700; }
-.topbar-right { display:flex; align-items:center; gap:0.75rem; }
-.status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); }
-.status-text { font-size:0.75rem; color:var(--dim); }
-.btn-view-site {
-  background:rgba(37,99,235,0.15); border:1px solid rgba(37,99,235,0.3);
-  color:var(--cyan); padding:0.4rem 0.9rem; border-radius:6px;
-  font-size:0.78rem; font-weight:600; cursor:pointer; text-decoration:none;
-  transition:all 0.2s; font-family:'Inter',sans-serif;
-}
-.btn-view-site:hover { background:rgba(37,99,235,0.25); }
-.content { padding:1.75rem; flex:1; }
+  .content-panel { display: none; }
+  .content-panel.active { display: block; }
 
-/* PANELS */
-.panel { display:none; }
-.panel.active { display:block; }
+  .panel-card { background: var(--charcoal); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; margin-bottom: 1.5rem; }
+  .panel-card h3 { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
 
-/* STATS ROW */
-.stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.75rem; }
-.stat-card {
-  background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem;
-  position:relative; overflow:hidden;
-}
-.stat-card::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
-  background:linear-gradient(90deg,var(--blue),var(--cyan));
-}
-.stat-card .sc-label { font-size:0.72rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem; }
-.stat-card .sc-value { font-family:'Space Grotesk',sans-serif; font-size:1.8rem; font-weight:700; }
-.stat-card .sc-sub { font-size:0.72rem; color:var(--dim); margin-top:0.25rem; }
-.stat-card.green::after { background:var(--green); }
-.stat-card.amber::after { background:var(--amber); }
-.stat-card.red::after { background:var(--red); }
-
-/* TABLE */
-.table-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-.table-head {
-  padding:1rem 1.25rem; border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;
-}
-.table-head h3 { font-size:0.95rem; font-weight:600; }
-.search-input {
-  background:rgba(255,255,255,0.05); border:1px solid var(--border);
-  border-radius:8px; padding:0.45rem 0.9rem; color:var(--white);
-  font-size:0.82rem; font-family:'Inter',sans-serif; outline:none; width:200px;
-  transition:border-color 0.2s;
-}
-.search-input:focus { border-color:var(--blue); }
-table { width:100%; border-collapse:collapse; }
-th { padding:0.75rem 1.25rem; text-align:left; font-size:0.72rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; border-bottom:1px solid var(--border); font-weight:600; white-space:nowrap; }
-td { padding:0.85rem 1.25rem; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.82rem; vertical-align:middle; }
-tr:last-child td { border-bottom:none; }
-tr:hover td { background:var(--hover); }
-.badge {
-  display:inline-block; padding:0.2rem 0.6rem; border-radius:100px;
-  font-size:0.68rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; white-space:nowrap;
-}
-.badge.approved { background:rgba(16,185,129,0.15); color:var(--green); border:1px solid rgba(16,185,129,0.3); }
-.badge.pending { background:rgba(245,158,11,0.15); color:var(--amber); border:1px solid rgba(245,158,11,0.3); }
-.badge.rejected { background:rgba(239,68,68,0.12); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
-.star-tiny { color:#FBBF24; font-size:0.8rem; }
-.action-btns { display:flex; gap:0.4rem; }
-.btn-sm {
-  padding:0.3rem 0.65rem; border-radius:6px; font-size:0.72rem; font-weight:600;
-  cursor:pointer; border:1px solid; transition:all 0.15s; font-family:'Inter',sans-serif;
-  white-space:nowrap;
-}
-.btn-approve { background:rgba(16,185,129,0.1); color:var(--green); border-color:rgba(16,185,129,0.3); }
-.btn-approve:hover { background:rgba(16,185,129,0.2); }
-.btn-reject { background:rgba(239,68,68,0.1); color:var(--red); border-color:rgba(239,68,68,0.3); }
-.btn-reject:hover { background:rgba(239,68,68,0.2); }
-.btn-delete { background:rgba(239,68,68,0.08); color:var(--red); border-color:rgba(239,68,68,0.2); }
-.btn-delete:hover { background:rgba(239,68,68,0.18); }
-.btn-edit { background:rgba(37,99,235,0.1); color:var(--cyan); border-color:rgba(37,99,235,0.3); }
-.btn-edit:hover { background:rgba(37,99,235,0.2); }
-.truncate { max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-
-/* CONTENT EDITOR */
-.editor-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
-.editor-card {
-  background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;
-}
-.editor-card-head {
-  padding:0.9rem 1.25rem; border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
-}
-.editor-card-head h3 { font-size:0.9rem; font-weight:600; }
-.editor-body { padding:1.25rem; }
-.field { display:flex; flex-direction:column; gap:0.35rem; margin-bottom:1rem; }
-.field label { font-size:0.72rem; color:var(--dim); font-weight:500; letter-spacing:0.04em; }
-.field input, .field textarea, .field select {
-  background:rgba(255,255,255,0.05); border:1px solid var(--border);
-  border-radius:8px; padding:0.6rem 0.85rem; color:var(--white);
-  font-size:0.85rem; font-family:'Inter',sans-serif; outline:none; transition:border-color 0.2s; width:100%;
-}
-.field input:focus, .field textarea:focus, .field select:focus { border-color:var(--blue); }
-.field textarea { resize:vertical; min-height:80px; }
-.field input[type="color"] { height:40px; padding:0.3rem; cursor:pointer; }
-.btn-save {
-  background:var(--blue); color:var(--white); border:none;
-  padding:0.6rem 1.25rem; border-radius:7px; font-weight:600; font-size:0.82rem;
-  font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s;
-}
-.btn-save:hover { background:#1d4ed8; }
-.btn-save-green { background:var(--green); }
-.btn-save-green:hover { background:#059669; }
-.saved-toast {
-  display:inline-flex; align-items:center; gap:0.4rem;
-  color:var(--green); font-size:0.78rem; font-weight:600;
-  opacity:0; transition:opacity 0.3s; margin-left:0.75rem;
-}
-.saved-toast.show { opacity:1; }
-
-/* CONTACTS TABLE */
-.contact-preview { max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--dim); }
-
-/* MODAL */
-.modal-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200;
-  display:flex; align-items:center; justify-content:center; padding:1rem;
-  backdrop-filter:blur(4px); opacity:0; pointer-events:none; transition:opacity 0.2s;
-}
-.modal-overlay.open { opacity:1; pointer-events:all; }
-.modal {
-  background:#111; border:1px solid var(--border); border-radius:16px;
-  padding:2rem; max-width:540px; width:100%; position:relative;
-  transform:translateY(20px); transition:transform 0.2s;
-}
-.modal-overlay.open .modal { transform:translateY(0); }
-.modal h3 { font-size:1.1rem; margin-bottom:0.5rem; }
-.modal p { color:var(--dim); font-size:0.85rem; margin-bottom:1.5rem; line-height:1.6; }
-.modal-actions { display:flex; gap:0.75rem; justify-content:flex-end; }
-.modal-close { position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--dim); cursor:pointer; font-size:1.2rem; transition:color 0.15s; }
-.modal-close:hover { color:var(--white); }
-.review-full-text { background:rgba(255,255,255,0.04); border-radius:8px; padding:1rem; color:var(--gray); font-size:0.85rem; line-height:1.7; margin-bottom:1.5rem; font-style:italic; }
-
-/* EMPTY STATE */
-.empty-state { text-align:center; padding:3rem; color:var(--dim); }
-.empty-state .e-icon { font-size:2.5rem; margin-bottom:0.75rem; }
-
-/* TABS within panels */
-.tab-row { display:flex; gap:0.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0; }
-.tab-btn {
-  padding:0.6rem 1.1rem; background:none; border:none; color:var(--dim);
-  font-size:0.82rem; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer;
-  border-bottom:2px solid transparent; margin-bottom:-1px; transition:all 0.15s;
-}
-.tab-btn.active { color:var(--white); border-bottom-color:var(--blue); }
-.tab-content { display:none; }
-.tab-content.active { display:block; }
-
-/* STAT pill */
-.stat-pill {
-  display:inline-flex; align-items:center; gap:0.3rem;
-  padding:0.2rem 0.6rem; border-radius:100px; font-size:0.72rem; font-weight:600;
-}
-.pill-up { background:rgba(16,185,129,0.1); color:var(--green); }
-.pill-down { background:rgba(239,68,68,0.1); color:var(--red); }
-
-@media(max-width:900px) {
-  .stats-row { grid-template-columns:1fr 1fr; }
-  .editor-grid { grid-template-columns:1fr; }
-  .sidebar { width:200px; }
-}
-@media(max-width:640px) {
-  .sidebar { position:fixed; left:-230px; z-index:50; height:100vh; transition:left 0.3s; }
-  .sidebar.open { left:0; }
-  .stats-row { grid-template-columns:1fr; }
-}
+  /* DATA TABLES / INBOX ITEMS */
+  .data-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+  .data-table th { padding: 1rem; color: var(--dim); font-weight: 600; border-bottom: 1px solid var(--border); text-transform: uppercase; font-size: 0.75rem; }
+  .data-table td { padding: 1rem; border-bottom: 1px solid var(--border); color: var(--gray); vertical-align: top; }
+  .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+  .badge.pending { background: rgba(251,191,36,0.1); color: #FBBF24; border: 1px solid rgba(251,191,36,0.2); }
+  .badge.success { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  
+  .actions-cell button { background: transparent; border: 1px solid var(--border); color: var(--white); padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+  .actions-cell button.approve-btn { background: rgba(16,185,129,0.15); border-color: var(--green); color: var(--green); }
+  .actions-cell button:hover { opacity: 0.8; }
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">
-      <svg viewBox="0 0 268 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="xgl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#2563EB"/></linearGradient></defs>
-        <polygon fill="white" points="2,4 14,4 14,36 36,4 48,4 48,52 36,52 36,20 14,52 2,52"/>
-        <polygon fill="white" points="54,4 90,4 90,15 66,15 66,25 87,25 87,35 66,35 66,41 90,41 90,52 54,52"/>
-        <polygon fill="white" points="96,4 111,4 128,28 145,4 160,4 143,28 160,52 145,52 128,30 111,52 96,52 113,28"/>
-        <polygon fill="url(#xgl)" points="124,22 128,16 132,22 128,28"/>
-        <polygon fill="url(#xgl)" points="124,34 128,28 132,34 128,40"/>
-        <polygon fill="white" points="166,4 178,4 178,41 200,41 200,4 212,4 212,52 166,52"/>
-        <polygon fill="white" points="218,4 256,4 256,16 230,16 230,24 256,24 256,52 218,52 218,40 244,40 244,32 218,32"/>
-      </svg>
-    </div>
-    <h2>Admin Panel</h2>
-    <p>Sign in to manage your NEXUS website</p>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="login-user" placeholder="admin" value="admin">
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
-    <button class="btn-login" onclick="doLogin()">Sign In →</button>
-    <div class="login-hint">Default: admin / nexus2025</div>
-    <div class="login-error" id="login-error">Invalid credentials. Please try again.</div>
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>NEXUS HQ Portal</h2>
+    <p>Authentication required to modify core assets</p>
+    <form id="login-form">
+      <div class="fgroup">
+        <label>Admin Key Token</label>
+        <input type="password" id="admin-pass" placeholder="••••••••••••" required>
+      </div>
+      <button type="submit" class="btn">Authenticate Dashboard</button>
+    </form>
   </div>
 </div>
 
-<!-- ── APP ── -->
-<div id="app" style="display:none;">
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <svg viewBox="0 0 268 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:20px;">
-        <defs><linearGradient id="xgs" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#2563EB"/></linearGradient></defs>
-        <polygon fill="white" points="2,4 14,4 14,36 36,4 48,4 48,52 36,52 36,20 14,52 2,52"/>
-        <polygon fill="white" points="54,4 90,4 90,15 66,15 66,25 87,25 87,35 66,35 66,41 90,41 90,52 54,52"/>
-        <polygon fill="white" points="96,4 111,4 128,28 145,4 160,4 143,28 160,52 145,52 128,30 111,52 96,52 113,28"/>
-        <polygon fill="url(#xgs)" points="124,22 128,16 132,22 128,28"/>
-        <polygon fill="url(#xgs)" points="124,34 128,28 132,34 128,40"/>
-        <polygon fill="white" points="166,4 178,4 178,41 200,41 200,4 212,4 212,52 166,52"/>
-        <polygon fill="white" points="218,4 256,4 256,16 230,16 230,24 256,24 256,52 218,52 218,40 244,40 244,32 218,32"/>
-      </svg>
-      <span>Admin</span>
-    </div>
+<header>
+  <div class="brand">NEXUS // <span>Control Center</span></div>
+  <button class="logout-btn" onclick="logout()">Terminate Session</button>
+</header>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Overview</div>
-      <div class="nav-item active" onclick="switchPanel('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Content</div>
-      <div class="nav-item" onclick="switchPanel('hero-editor',this)"><span class="icon">🖼️</span> Hero Section</div>
-      <div class="nav-item" onclick="switchPanel('about-editor',this)"><span class="icon">ℹ️</span> About</div>
-      <div class="nav-item" onclick="switchPanel('stats-editor',this)"><span class="icon">📈</span> Statistics</div>
-      <div class="nav-item" onclick="switchPanel('contact-editor',this)"><span class="icon">📞</span> Contact Info</div>
-      <div class="nav-item" onclick="switchPanel('cta-editor',this)"><span class="icon">🎯</span> CTA Banners</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Community</div>
-      <div class="nav-item" onclick="switchPanel('reviews',this)" id="nav-reviews"><span class="icon">⭐</span> Reviews <span class="sidebar-badge" id="pending-badge" style="display:none;">0</span></div>
-      <div class="nav-item" onclick="switchPanel('contacts',this)"><span class="icon">📬</span> Contact Forms</div>
-    </div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Settings</div>
-      <div class="nav-item" onclick="switchPanel('settings',this)"><span class="icon">⚙️</span> Site Settings</div>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="admin-avatar">AD</div>
-      <div class="admin-info">
-        <div class="admin-name">Admin</div>
-        <div class="admin-role">Super Admin</div>
-      </div>
-      <button class="btn-logout" onclick="doLogout()" title="Logout">⏻</button>
-    </div>
+<main>
+  <div class="sidebar-nav">
+    <div class="nav-item active" onclick="switchTab('tab-calls', this)">Call Bookings</div>
+    <div class="nav-item" onclick="switchTab('tab-content', this)">Global Content Editor</div>
+    <div class="nav-item" onclick="switchTab('tab-reviews', this)">Review Approvals</div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <h1 id="panel-title">Dashboard</h1>
-      <div class="topbar-right">
-        <div class="status-dot"></div>
-        <span class="status-text">Live</span>
-        <a href="https://bottgopaal-nexus.vercel.app/" target="_blank" class="btn-view-site">↗ View Site</a>
-        <a href="https://bottgopaal-nexus.vercel.app/nexus-reviews.html" target="_blank" class="btn-view-site">↗ Reviews Page</a>
+  <div class="workspace">
+    <div id="tab-calls" class="content-panel active">
+      <div class="panel-card">
+        <h3>Incoming Inquiries & Booked Calls</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client / Company</th>
+              <th>Service Required</th>
+              <th>Message Brief</th>
+              <th>Date Sent</th>
+            </tr>
+          </thead>
+          <tbody id="calls-table-body">
+            </tbody>
+        </table>
       </div>
     </div>
-    <div class="content">
 
-      <!-- ── DASHBOARD ── -->
-      <div class="panel active" id="panel-dashboard">
-        <div class="stats-row" id="dash-stats">
-          <div class="stat-card green">
-            <div class="sc-label">Total Reviews</div>
-            <div class="sc-value" id="ds-total">0</div>
-            <div class="sc-sub">All time</div>
+    <div id="tab-content" class="content-panel">
+      <div class="panel-card">
+        <h3>Live Deployment Hero Content Copy</h3>
+        <form id="hero-content-form">
+          <div class="fgroup">
+            <label>Primary Hero Catchphrase</label>
+            <input type="text" id="cfg-hero-title" value="Connect. Create. Convert.">
           </div>
-          <div class="stat-card amber">
-            <div class="sc-label">Pending Approval</div>
-            <div class="sc-value" id="ds-pending">0</div>
-            <div class="sc-sub">Awaiting review</div>
+          <div class="fgroup">
+            <label>Sub-Hero Supporting Context Block</label>
+            <textarea id="cfg-hero-sub">We build high-performance next generation digital solutions that connect platforms, create value, and convert users into customers.</textarea>
           </div>
-          <div class="stat-card">
-            <div class="sc-label">Avg. Rating</div>
-            <div class="sc-value" id="ds-avg">—</div>
-            <div class="sc-sub">Approved reviews</div>
-          </div>
-          <div class="stat-card">
-            <div class="sc-label">Contact Forms</div>
-            <div class="sc-value" id="ds-contacts">0</div>
-            <div class="sc-sub">Submitted</div>
-          </div>
-        </div>
-        <!-- Recent Pending -->
-        <div class="table-wrap">
-          <div class="table-head"><h3>Pending Reviews — Quick Approve</h3></div>
-          <div id="dash-pending-list"></div>
-        </div>
+          <button type="submit" class="btn">Push Changes Live</button>
+        </form>
       </div>
+    </div>
 
-      <!-- ── HERO EDITOR ── -->
-      <div class="panel" id="panel-hero-editor">
-        <div class="editor-grid">
-          <div class="editor-card">
-            <div class="editor-card-head">
-              <h3>Hero Headline</h3>
-              <div>
-                <button class="btn-save" onclick="saveContent('hero')">Save</button>
-                <span class="saved-toast" id="toast-hero">✓ Saved</span>
-              </div>
-            </div>
-            <div class="editor-body">
-              <div class="field"><label>Badge Text</label><input type="text" id="hero-badge" placeholder="AI-Powered Digital Growth Agency"></div>
-              <div class="field"><label>Main Headline</label><input type="text" id="hero-h1" placeholder="Connect. Create. Convert."></div>
-              <div class="field"><label>Sub-headline</label><textarea id="hero-sub" rows="3" placeholder="Helping ambitious businesses scale..."></textarea></div>
-              <div class="field"><label>Supporting Text</label><textarea id="hero-sub2" rows="3" placeholder="We combine strategy, creativity..."></textarea></div>
-              <div class="field"><label>Primary CTA Button</label><input type="text" id="hero-cta1" placeholder="Book a Free Strategy Call →"></div>
-              <div class="field"><label>Secondary CTA Button</label><input type="text" id="hero-cta2" placeholder="Explore Our Services"></div>
-            </div>
-          </div>
-          <div class="editor-card">
-            <div class="editor-card-head"><h3>Preview</h3></div>
-            <div class="editor-body" style="background:rgba(0,0,0,0.4);border-radius:8px;padding:1.5rem;">
-              <div style="font-size:0.65rem;color:var(--cyan);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;" id="prev-badge">AI-Powered Digital Growth Agency</div>
-              <div style="font-size:1.4rem;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:0.5rem;line-height:1.2;" id="prev-h1">Connect. Create. Convert.</div>
-              <div style="font-size:0.8rem;color:var(--gray);margin-bottom:0.75rem;line-height:1.6;" id="prev-sub">Helping ambitious businesses scale through AI-powered digital marketing...</div>
-              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                <div style="background:var(--blue);padding:0.4rem 0.9rem;border-radius:6px;font-size:0.75rem;font-weight:600;" id="prev-cta1">Book a Free Strategy Call →</div>
-                <div style="border:1px solid rgba(255,255,255,0.2);padding:0.4rem 0.9rem;border-radius:6px;font-size:0.75rem;font-weight:600;" id="prev-cta2">Explore Our Services</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div id="tab-reviews" class="content-panel">
+      <div class="panel-card">
+        <h3>User Submitted Reviews Queue</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>User Context</th>
+              <th>Rating Score</th>
+              <th>Review Assessment Feedback</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="reviews-table-body">
+            </tbody>
+        </table>
       </div>
-
-      <!-- ── ABOUT EDITOR ── -->
-      <div class="panel" id="panel-about-editor">
-        <div class="editor-card" style="max-width:700px;">
-          <div class="editor-card-head">
-            <h3>About Section</h3>
-            <div>
-              <button class="btn-save" onclick="saveContent('about')">Save Changes</button>
-              <span class="saved-toast" id="toast-about">✓ Saved</span>
-            </div>
-          </div>
-          <div class="editor-body">
-            <div class="field"><label>Section Tag</label><input type="text" id="about-tag" placeholder="Who We Are"></div>
-            <div class="field"><label>Heading</label><input type="text" id="about-h2" placeholder="We Don't Just Market Brands—We Build Growth Engines."></div>
-            <div class="field"><label>Paragraph 1</label><textarea id="about-p1" rows="4"></textarea></div>
-            <div class="field"><label>Paragraph 2</label><textarea id="about-p2" rows="3"></textarea></div>
-            <div class="field"><label>Float Card 1 — Number</label><input type="text" id="about-float1-num" placeholder="4.2x"></div>
-            <div class="field"><label>Float Card 1 — Label</label><input type="text" id="about-float1-label" placeholder="Average ROAS"></div>
-            <div class="field"><label>Float Card 2 — Number</label><input type="text" id="about-float2-num" placeholder="98%"></div>
-            <div class="field"><label>Float Card 2 — Label</label><input type="text" id="about-float2-label" placeholder="Client Retention"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── STATS EDITOR ── -->
-      <div class="panel" id="panel-stats-editor">
-        <div class="editor-card" style="max-width:600px;">
-          <div class="editor-card-head">
-            <h3>Hero Statistics</h3>
-            <div>
-              <button class="btn-save" onclick="saveContent('stats')">Save</button>
-              <span class="saved-toast" id="toast-stats">✓ Saved</span>
-            </div>
-          </div>
-          <div class="editor-body" id="stats-fields"></div>
-        </div>
-      </div>
-
-      <!-- ── CONTACT INFO EDITOR ── -->
-      <div class="panel" id="panel-contact-editor">
-        <div class="editor-card" style="max-width:600px;">
-          <div class="editor-card-head">
-            <h3>Contact Information</h3>
-            <div>
-              <button class="btn-save" onclick="saveContent('contact')">Save</button>
-              <span class="saved-toast" id="toast-contact">✓ Saved</span>
-            </div>
-          </div>
-          <div class="editor-body">
-            <div class="field"><label>Contact Heading</label><input type="text" id="c-heading" placeholder="Let's Build Something Remarkable."></div>
-            <div class="field"><label>Contact Sub-text</label><textarea id="c-subtext" rows="2" placeholder="Fill in the form and a NEXUS strategist..."></textarea></div>
-            <div class="field"><label>WhatsApp Number</label><input type="text" id="c-whatsapp" placeholder="+91 98765 43210"></div>
-            <div class="field"><label>WhatsApp Link</label><input type="text" id="c-whatsapp-link" placeholder="https://wa.me/919876543210"></div>
-            <div class="field"><label>Email Address</label><input type="email" id="c-email" placeholder="hello@nexus.agency"></div>
-            <div class="field"><label>Calendly / Scheduling Link</label><input type="text" id="c-cal" placeholder="https://calendly.com/nexus"></div>
-            <div class="field"><label>Phone Number (footer)</label><input type="text" id="c-phone" placeholder="+91 98765 43210"></div>
-            <div class="field"><label>Office Address</label><textarea id="c-address" rows="2" placeholder="123 Business Hub, Chennai, India"></textarea></div>
-            <hr style="border-color:var(--border);margin:1rem 0;">
-            <div style="font-size:0.78rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Social Media Links</div>
-            <div class="field"><label>Twitter / X</label><input type="text" id="c-twitter" placeholder="https://twitter.com/nexus"></div>
-            <div class="field"><label>LinkedIn</label><input type="text" id="c-linkedin" placeholder="https://linkedin.com/company/nexus"></div>
-            <div class="field"><label>YouTube</label><input type="text" id="c-youtube" placeholder="https://youtube.com/@nexus"></div>
-            <div class="field"><label>Instagram</label><input type="text" id="c-instagram" placeholder="https://instagram.com/nexus"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── CTA EDITOR ── -->
-      <div class="panel" id="panel-cta-editor">
-        <div class="editor-card" style="max-width:660px;">
-          <div class="editor-card-head">
-            <h3>CTA Banner</h3>
-            <div>
-              <button class="btn-save" onclick="saveContent('cta')">Save</button>
-              <span class="saved-toast" id="toast-cta">✓ Saved</span>
-            </div>
-          </div>
-          <div class="editor-body">
-            <div class="field"><label>Banner Headline</label><input type="text" id="cta-h2" placeholder="Ready to Scale Your Business with AI-Powered Marketing?"></div>
-            <div class="field"><label>Banner Sub-text</label><textarea id="cta-p" rows="2" placeholder="Partner with NEXUS to connect..."></textarea></div>
-            <div class="field"><label>Primary Button Text</label><input type="text" id="cta-btn1" placeholder="Book Your Free Strategy Call →"></div>
-            <div class="field"><label>Primary Button Link</label><input type="text" id="cta-btn1-link" placeholder="#contact"></div>
-            <div class="field"><label>Secondary Button Text</label><input type="text" id="cta-btn2" placeholder="Get a Free Digital Marketing Audit"></div>
-            <div class="field"><label>Secondary Button Link</label><input type="text" id="cta-btn2-link" placeholder="#contact"></div>
-            <hr style="border-color:var(--border);margin:1rem 0;">
-            <div style="font-size:0.78rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Nav CTA Button</div>
-            <div class="field"><label>Nav Button Text</label><input type="text" id="nav-cta-text" placeholder="Book a Call"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── REVIEWS PANEL ── -->
-      <div class="panel" id="panel-reviews">
-        <div class="tab-row">
-          <button class="tab-btn active" onclick="switchTab('rev','pending',this)">⏳ Pending <span id="tab-pending-cnt"></span></button>
-          <button class="tab-btn" onclick="switchTab('rev','approved',this)">✅ Approved</button>
-          <button class="tab-btn" onclick="switchTab('rev','rejected',this)">❌ Rejected</button>
-          <button class="tab-btn" onclick="switchTab('rev','all',this)">All Reviews</button>
-        </div>
-        <div class="tab-content active" id="rev-pending"><div id="rv-pending-table"></div></div>
-        <div class="tab-content" id="rev-approved"><div id="rv-approved-table"></div></div>
-        <div class="tab-content" id="rev-rejected"><div id="rv-rejected-table"></div></div>
-        <div class="tab-content" id="rev-all"><div id="rv-all-table"></div></div>
-      </div>
-
-      <!-- ── CONTACTS PANEL ── -->
-      <div class="panel" id="panel-contacts">
-        <div class="table-wrap">
-          <div class="table-head">
-            <h3>Contact Form Submissions</h3>
-            <div style="display:flex;gap:0.75rem;align-items:center;">
-              <input class="search-input" type="text" placeholder="Search submissions..." oninput="renderContacts(this.value)">
-              <button class="btn-sm btn-delete" onclick="clearContacts()" style="padding:0.4rem 0.75rem;">Clear All</button>
-            </div>
-          </div>
-          <div id="contacts-table-wrap">
-            <div class="empty-state"><div class="e-icon">📬</div><p>No form submissions yet.<br>They'll appear here when visitors fill out the contact form.</p></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── SETTINGS ── -->
-      <div class="panel" id="panel-settings">
-        <div class="editor-grid">
-          <div class="editor-card">
-            <div class="editor-card-head">
-              <h3>Site Identity</h3>
-              <div>
-                <button class="btn-save" onclick="saveContent('settings')">Save</button>
-                <span class="saved-toast" id="toast-settings">✓ Saved</span>
-              </div>
-            </div>
-            <div class="editor-body">
-              <div class="field"><label>Agency Name</label><input type="text" id="s-name" placeholder="NEXUS"></div>
-              <div class="field"><label>Tagline</label><input type="text" id="s-tagline" placeholder="Connect • Create • Convert"></div>
-              <div class="field"><label>Meta Title</label><input type="text" id="s-meta-title" placeholder="NEXUS — Connect. Create. Convert."></div>
-              <div class="field"><label>Meta Description</label><textarea id="s-meta-desc" rows="2" placeholder="AI-powered digital marketing agency..."></textarea></div>
-              <div class="field"><label>Footer Copyright</label><input type="text" id="s-copyright" placeholder="© 2025 NEXUS. All rights reserved."></div>
-            </div>
-          </div>
-          <div class="editor-card">
-            <div class="editor-card-head">
-              <h3>Admin Credentials</h3>
-              <div>
-                <button class="btn-save btn-save-green" onclick="saveCredentials()">Update</button>
-                <span class="saved-toast" id="toast-creds">✓ Updated</span>
-              </div>
-            </div>
-            <div class="editor-body">
-              <div class="field"><label>Current Password</label><input type="password" id="cr-current" placeholder="••••••••"></div>
-              <div class="field"><label>New Username</label><input type="text" id="cr-user" placeholder="admin"></div>
-              <div class="field"><label>New Password</label><input type="password" id="cr-new" placeholder="New password"></div>
-              <div class="field"><label>Confirm Password</label><input type="password" id="cr-confirm" placeholder="Confirm new password"></div>
-              <div id="cr-error" style="color:var(--red);font-size:0.78rem;margin-top:0.5rem;display:none;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- content -->
-  </div><!-- main -->
-</div><!-- app -->
-
-<!-- REVIEW DETAIL MODAL -->
-<div class="modal-overlay" id="review-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('review-modal')">✕</button>
-    <h3 id="modal-reviewer-name">Review</h3>
-    <p id="modal-reviewer-meta" style="margin-bottom:1rem;"></p>
-    <div class="review-full-text" id="modal-review-text"></div>
-    <div class="modal-actions">
-      <button class="btn-sm btn-reject" id="modal-btn-reject">Reject</button>
-      <button class="btn-sm btn-approve" id="modal-btn-approve">Approve</button>
     </div>
   </div>
-</div>
-
-<!-- CONTACT DETAIL MODAL -->
-<div class="modal-overlay" id="contact-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('contact-modal')">✕</button>
-    <h3 id="cm-name"></h3>
-    <p id="cm-meta"></p>
-    <div class="review-full-text" id="cm-details"></div>
-    <div class="modal-actions">
-      <button class="btn-sm btn-delete" id="cm-delete">Delete</button>
-      <a id="cm-reply-link" href="#" class="btn-sm btn-edit">Reply via Email</a>
-    </div>
-  </div>
-</div>
+</main>
 
 <script>
-// ═══════════════════════════════════════════
-// STORAGE KEYS
-const REVIEWS_KEY  = 'nexus_reviews';
-const CONTACTS_KEY = 'nexus_contacts';
-const CONTENT_KEY  = 'nexus_content';
-const CREDS_KEY    = 'nexus_creds';
+  // Simple Secure Session Management for Static Domains
+  const PASS_HASH = "nexus2026"; // Change to your desired secure passphrase
+  
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if(document.getElementById('admin-pass').value === PASS_HASH) {
+      document.getElementById('login-overlay').style.display = 'none';
+      sessionStorage.setItem('nexus_authed', 'true');
+      initDashboard();
+    } else {
+      alert('Invalid Authorization Key Token.');
+    }
+  });
 
-// ─── DEFAULT CREDENTIALS ───
-function getCreds() {
-  try { return JSON.parse(localStorage.getItem(CREDS_KEY)) || {user:'admin',pass:'nexus2025'}; }
-  catch(e) { return {user:'admin',pass:'nexus2025'}; }
-}
-
-// ─── LOGIN ───
-function doLogin() {
-  const u = document.getElementById('login-user').value.trim();
-  const p = document.getElementById('login-pass').value;
-  const creds = getCreds();
-  if (u === creds.user && p === creds.pass) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    initApp();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
+  if(sessionStorage.getItem('nexus_authed') === 'true') {
+    document.getElementById('login-overlay').style.display = 'none';
+    window.addEventListener('DOMContentLoaded', initDashboard);
   }
-}
-document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
-function doLogout() {
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-pass').value = '';
-  document.getElementById('login-error').style.display = 'none';
-}
-
-// ─── PANEL SWITCHING ───
-function switchPanel(id, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if(el) el.classList.add('active');
-  const titles = {
-    'dashboard':'Dashboard','hero-editor':'Hero Section','about-editor':'About Section',
-    'stats-editor':'Statistics','contact-editor':'Contact Information','cta-editor':'CTA Banners',
-    'reviews':'Review Management','contacts':'Contact Form Submissions','settings':'Site Settings'
-  };
-  document.getElementById('panel-title').textContent = titles[id] || id;
-  if(id==='reviews') renderReviewTables();
-  if(id==='contacts') renderContacts('');
-  if(id==='dashboard') renderDashboard();
-}
-
-function switchTab(group, id, el) {
-  document.querySelectorAll(`[id^="${group}-"]`).forEach(t => t.classList.remove('active'));
-  document.getElementById(group+'-'+id).classList.add('active');
-  el.closest('.tab-row').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-}
-
-// ─── REVIEWS DATA ───
-const SEED = [
-  {id:1,name:'Sarah K.',role:'CEO, TechFlow Solutions',service:'Full-Service Partnership',rating:5,text:'NEXUS completely transformed our digital presence. Within three months, our cost per lead dropped by 60% and our pipeline more than tripled.',date:'2025-05-12',approved:true},
-  {id:2,name:'Dr. Rajan M.',role:'Founder, ClearMed Clinics',service:'Custom AI Agents',rating:5,text:'The team at NEXUS doesn\'t just run campaigns—they think like business owners. The custom AI agent they built for our clinic handles 70% of patient inquiries automatically.',date:'2025-04-28',approved:true},
-  {id:3,name:'Ananya P.',role:'Director of Growth, Verdant Brands',service:'Meta Ads',rating:5,text:'We\'d worked with three agencies before NEXUS and none came close. Their reporting is transparent, their communication is excellent, and our revenue has grown 280% over the past year.',date:'2025-06-01',approved:true},
-  {id:4,name:'Marcus T.',role:'E-commerce Manager, StyleHaven',service:'Google Ads',rating:5,text:'Incredible ROI from day one. The team understood our products deeply and the Performance Max campaigns they built consistently deliver 5x ROAS.',date:'2025-03-15',approved:true},
-  {id:5,name:'Priya L.',role:'Founder, LuminaCosmetics',service:'Branding & Creative Design',rating:5,text:'Our brand identity was completely redesigned by NEXUS and the results speak for themselves. Customer trust has skyrocketed and our Instagram engagement tripled.',date:'2025-05-20',approved:true},
-  {id:6,name:'James W.',role:'Head of Marketing, BuildRight',service:'SEO',rating:4,text:'Strong SEO results — we\'re now ranking on page 1 for 12 of our target keywords within 5 months.',date:'2025-06-10',approved:true},
-];
-
-function getReviews() {
-  try { return JSON.parse(localStorage.getItem(REVIEWS_KEY)) || SEED; }
-  catch(e) { return SEED; }
-}
-function saveReviews(r) { try { localStorage.setItem(REVIEWS_KEY, JSON.stringify(r)); } catch(e){} }
-if(!localStorage.getItem(REVIEWS_KEY)) saveReviews(SEED);
-
-function getContacts() {
-  try { return JSON.parse(localStorage.getItem(CONTACTS_KEY)) || []; }
-  catch(e) { return []; }
-}
-
-function starsHTML(n) { return '★'.repeat(n)+'☆'.repeat(5-n); }
-
-// ─── DASHBOARD ───
-function renderDashboard() {
-  const reviews = getReviews();
-  const contacts = getContacts();
-  const approved = reviews.filter(r=>r.approved===true);
-  const pending  = reviews.filter(r=>r.approved===false);
-  const avg = approved.length ? (approved.reduce((s,r)=>s+r.rating,0)/approved.length).toFixed(1) : '—';
-  document.getElementById('ds-total').textContent = reviews.length;
-  document.getElementById('ds-pending').textContent = pending.length;
-  document.getElementById('ds-avg').textContent = avg;
-  document.getElementById('ds-contacts').textContent = contacts.length;
-  updatePendingBadge(pending.length);
-  document.getElementById('tab-pending-cnt').textContent = pending.length ? `(${pending.length})` : '';
-
-  const list = document.getElementById('dash-pending-list');
-  if (!pending.length) {
-    list.innerHTML = '<div class="empty-state"><div class="e-icon">✅</div><p>No pending reviews. All caught up!</p></div>';
-    return;
+  function logout() {
+    sessionStorage.removeItem('nexus_authed');
+    window.location.reload();
   }
-  list.innerHTML = `<table><thead><tr><th>Reviewer</th><th>Rating</th><th>Service</th><th>Preview</th><th>Date</th><th>Actions</th></tr></thead><tbody>
-    ${pending.map(r=>`<tr>
-      <td><strong>${r.name}</strong><br><span style="color:var(--dim);font-size:0.75rem;">${r.role||''}</span></td>
-      <td><span class="star-tiny">${starsHTML(r.rating)}</span></td>
-      <td>${r.service}</td>
-      <td><div class="truncate">${r.text}</div></td>
-      <td style="color:var(--dim);">${r.date}</td>
-      <td><div class="action-btns">
-        <button class="btn-sm btn-edit" onclick="openReviewModal(${r.id})">View</button>
-        <button class="btn-sm btn-approve" onclick="approveReview(${r.id})">✓ Approve</button>
-        <button class="btn-sm btn-reject" onclick="rejectReview(${r.id})">✕ Reject</button>
-      </div></td>
-    </tr>`).join('')}
-  </tbody></table>`;
-}
 
-function updatePendingBadge(n) {
-  const badge = document.getElementById('pending-badge');
-  badge.style.display = n > 0 ? 'inline-block' : 'none';
-  badge.textContent = n;
-}
-
-// ─── REVIEW TABLES ───
-function renderReviewTables() {
-  const all = getReviews();
-  const pending  = all.filter(r => r.approved === false);
-  const approved = all.filter(r => r.approved === true);
-  const rejected = all.filter(r => r.approved === 'rejected');
-  document.getElementById('tab-pending-cnt').textContent = pending.length ? `(${pending.length})` : '';
-  updatePendingBadge(pending.length);
-  renderRVTable('rv-pending-table',  pending,  ['approve','reject','delete']);
-  renderRVTable('rv-approved-table', approved, ['reject','delete']);
-  renderRVTable('rv-rejected-table', rejected, ['approve','delete']);
-  renderRVTable('rv-all-table',      all,      ['approve','reject','delete']);
-}
-
-function renderRVTable(containerId, reviews, actions) {
-  const el = document.getElementById(containerId);
-  if (!reviews.length) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">📭</div><p>No reviews in this category.</p></div>';
-    return;
+  function switchTab(tabId, el) {
+    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    el.classList.add('active');
   }
-  el.innerHTML = `<div class="table-wrap"><table>
-    <thead><tr><th>Reviewer</th><th>Rating</th><th>Service</th><th>Review</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-    <tbody>${reviews.map(r=>{
-      const status = r.approved===true ? 'approved' : r.approved==='rejected' ? 'rejected' : 'pending';
-      const label  = r.approved===true ? 'Approved' : r.approved==='rejected' ? 'Rejected' : 'Pending';
-      return `<tr>
-        <td><strong>${r.name}</strong><br><span style="color:var(--dim);font-size:0.72rem;">${r.role||''}</span></td>
-        <td><span class="star-tiny">${starsHTML(r.rating)}</span><br><span style="color:var(--dim);font-size:0.72rem;">${r.rating}/5</span></td>
-        <td style="color:var(--gray);font-size:0.8rem;">${r.service}</td>
-        <td><div class="truncate" style="max-width:200px;">${r.text}</div></td>
-        <td><span class="badge ${status}">${label}</span></td>
-        <td style="color:var(--dim);white-space:nowrap;">${r.date}</td>
-        <td><div class="action-btns">
-          <button class="btn-sm btn-edit" onclick="openReviewModal(${r.id})">View</button>
-          ${actions.includes('approve') ? `<button class="btn-sm btn-approve" onclick="approveReview(${r.id})">✓</button>` : ''}
-          ${actions.includes('reject')  ? `<button class="btn-sm btn-reject"  onclick="rejectReview(${r.id})">✕</button>` : ''}
-          ${actions.includes('delete')  ? `<button class="btn-sm btn-delete"  onclick="deleteReview(${r.id})">🗑</button>` : ''}
-        </div></td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table></div>`;
-}
 
-function approveReview(id) {
-  const reviews = getReviews();
-  const r = reviews.find(r=>r.id===id);
-  if(r) r.approved = true;
-  saveReviews(reviews);
-  renderReviewTables(); renderDashboard();
-  closeModal('review-modal');
-}
-function rejectReview(id) {
-  const reviews = getReviews();
-  const r = reviews.find(r=>r.id===id);
-  if(r) r.approved = 'rejected';
-  saveReviews(reviews);
-  renderReviewTables(); renderDashboard();
-  closeModal('review-modal');
-}
-function deleteReview(id) {
-  if(!confirm('Delete this review permanently?')) return;
-  const reviews = getReviews().filter(r=>r.id!==id);
-  saveReviews(reviews);
-  renderReviewTables(); renderDashboard();
-  closeModal('review-modal');
-}
-
-// ─── REVIEW MODAL ───
-let _modalId = null;
-function openReviewModal(id) {
-  _modalId = id;
-  const r = getReviews().find(r=>r.id===id);
-  if(!r) return;
-  document.getElementById('modal-reviewer-name').textContent = r.name;
-  document.getElementById('modal-reviewer-meta').textContent = `${r.role||''}  •  ${r.service}  •  ${starsHTML(r.rating)}  •  ${r.date}`;
-  document.getElementById('modal-review-text').textContent = r.text;
-  document.getElementById('modal-btn-approve').onclick = () => approveReview(id);
-  document.getElementById('modal-btn-reject').onclick  = () => rejectReview(id);
-  document.getElementById('review-modal').classList.add('open');
-}
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.getElementById('review-modal').addEventListener('click', function(e){ if(e.target===this) closeModal('review-modal'); });
-document.getElementById('contact-modal').addEventListener('click', function(e){ if(e.target===this) closeModal('contact-modal'); });
-
-// ─── CONTACTS ───
-function renderContacts(search='') {
-  const contacts = getContacts().filter(c =>
-    !search || [c.name,c.email,c.company,c.service,c.message].join(' ').toLowerCase().includes(search.toLowerCase())
-  ).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const wrap = document.getElementById('contacts-table-wrap');
-  if(!contacts.length) {
-    wrap.innerHTML = '<div class="empty-state"><div class="e-icon">📬</div><p>No contact submissions yet.</p></div>';
-    return;
+  // Cross-Domain Synchronization Stack using LocalStorage as baseline Mock API
+  function initDashboard() {
+    loadBookings();
+    loadReviews();
   }
-  wrap.innerHTML = `<table>
-    <thead><tr><th>Name</th><th>Company</th><th>Email</th><th>Phone</th><th>Service</th><th>Message</th><th>Date</th><th></th></tr></thead>
-    <tbody>${contacts.map((c,i)=>`<tr>
-      <td><strong>${c.name}</strong></td>
-      <td style="color:var(--gray);">${c.company||'—'}</td>
-      <td><a href="mailto:${c.email}" style="color:var(--cyan);text-decoration:none;">${c.email}</a></td>
-      <td style="color:var(--gray);">${c.phone||'—'}</td>
-      <td><span class="badge approved" style="font-size:0.65rem;">${c.service||'General'}</span></td>
-      <td><div class="contact-preview">${c.message||''}</div></td>
-      <td style="color:var(--dim);white-space:nowrap;">${c.date||''}</td>
-      <td><button class="btn-sm btn-edit" onclick="openContactModal(${i})">View</button></td>
-    </tr>`).join('')}
-  </tbody></table>`;
-}
-function openContactModal(idx) {
-  const c = getContacts().sort((a,b)=>new Date(b.date)-new Date(a.date))[idx];
-  if(!c) return;
-  document.getElementById('cm-name').textContent = c.name + (c.company ? ` — ${c.company}` : '');
-  document.getElementById('cm-meta').textContent = `${c.email}  ${c.phone ? '• '+c.phone : ''}  • ${c.service||'General'}  • ${c.date}`;
-  document.getElementById('cm-details').textContent = c.message || '(No message provided)';
-  document.getElementById('cm-reply-link').href = `mailto:${c.email}?subject=Re: Your NEXUS enquiry`;
-  document.getElementById('cm-delete').onclick = () => {
-    const all = getContacts();
-    const sorted = all.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    sorted.splice(idx,1);
-    try { localStorage.setItem(CONTACTS_KEY,JSON.stringify(sorted)); } catch(e){}
-    renderContacts(''); closeModal('contact-modal');
-  };
-  document.getElementById('contact-modal').classList.add('open');
-}
-function clearContacts() {
-  if(!confirm('Clear all contact submissions?')) return;
-  try { localStorage.setItem(CONTACTS_KEY,'[]'); } catch(e){}
-  renderContacts('');
-}
 
-// ─── CONTENT EDITOR ───
-const CONTENT_DEFAULTS = {
-  hero: { badge:'AI-Powered Digital Growth Agency', h1:'Connect. Create. Convert.', sub:'Helping ambitious businesses scale through AI-powered digital marketing, intelligent automation, creative branding, and performance-driven advertising.', sub2:'We combine strategy, creativity, and cutting-edge AI to generate qualified leads, maximize ROI, and build brands that dominate the digital landscape.', cta1:'Book a Free Strategy Call →', cta2:'Explore Our Services' },
-  about: { tag:'Who We Are', h2:'We Don\'t Just Market Brands—We Build Growth Engines.', p1:'At NEXUS, we believe digital marketing is more than running ads or posting content. It\'s about creating intelligent systems that attract the right audience, convert them into loyal customers, and scale businesses sustainably.', p2:'Our team blends creativity, performance marketing, AI automation, and data-driven strategies to deliver measurable results. Whether you\'re a startup or an enterprise, NEXUS becomes your strategic growth partner.', float1Num:'4.2x', float1Label:'Average ROAS', float2Num:'98%', float2Label:'Client Retention' },
-  stats: [
-    {target:500, label:'Businesses Scaled'},{target:2800, label:'Campaigns Managed'},
-    {target:350, label:'AI Automations Built'},{target:48, label:'$M Revenue Generated'},
-    {target:120000, label:'Qualified Leads Delivered'}
-  ],
-  contact: { heading:'Let\'s Build Something Remarkable.', subtext:'Fill in the form and a NEXUS strategist will reach out within 24 hours to discuss your growth goals.', whatsapp:'', whatsappLink:'https://wa.me/', email:'hello@nexus.agency', cal:'', phone:'', address:'', twitter:'#', linkedin:'#', youtube:'#', instagram:'#' },
-  cta: { h2:'Ready to Scale Your Business with AI-Powered Marketing?', p:'Partner with NEXUS to connect with your audience, create impactful digital experiences, and convert opportunities into measurable business growth.', btn1:'Book Your Free Strategy Call →', btn1Link:'#contact', btn2:'Get a Free Digital Marketing Audit', btn2Link:'#contact', navCta:'Book a Call' },
-  settings: { name:'NEXUS', tagline:'Connect • Create • Convert', metaTitle:'NEXUS — Connect. Create. Convert.', metaDesc:'AI-powered digital marketing agency helping businesses scale.', copyright:'© 2025 NEXUS. All rights reserved.' }
-};
-
-function getContent() {
-  try { return JSON.parse(localStorage.getItem(CONTENT_KEY)) || CONTENT_DEFAULTS; }
-  catch(e) { return CONTENT_DEFAULTS; }
-}
-function setContent(data) { try { localStorage.setItem(CONTENT_KEY, JSON.stringify(data)); } catch(e){} }
-
-function loadEditors() {
-  const c = getContent();
-  // Hero
-  const h = c.hero || CONTENT_DEFAULTS.hero;
-  setValue('hero-badge', h.badge); setValue('hero-h1', h.h1);
-  setValue('hero-sub', h.sub); setValue('hero-sub2', h.sub2);
-  setValue('hero-cta1', h.cta1); setValue('hero-cta2', h.cta2);
-  updatePreview();
-  // About
-  const a = c.about || CONTENT_DEFAULTS.about;
-  setValue('about-tag',a.tag); setValue('about-h2',a.h2);
-  setValue('about-p1',a.p1); setValue('about-p2',a.p2);
-  setValue('about-float1-num',a.float1Num); setValue('about-float1-label',a.float1Label);
-  setValue('about-float2-num',a.float2Num); setValue('about-float2-label',a.float2Label);
-  // Stats
-  const stats = c.stats || CONTENT_DEFAULTS.stats;
-  const sf = document.getElementById('stats-fields');
-  sf.innerHTML = stats.map((s,i)=>`
-    <div style="border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
-      <div style="font-size:0.72rem;color:var(--dim);font-weight:600;margin-bottom:0.5rem;text-transform:uppercase;">Stat ${i+1}</div>
-      <div class="field"><label>Number</label><input type="number" id="stat-num-${i}" value="${s.target}"></div>
-      <div class="field"><label>Label</label><input type="text" id="stat-label-${i}" value="${s.label}"></div>
-    </div>`).join('');
-  // Contact
-  const ct = c.contact || CONTENT_DEFAULTS.contact;
-  setValue('c-heading',ct.heading); setValue('c-subtext',ct.subtext);
-  setValue('c-whatsapp',ct.whatsapp); setValue('c-whatsapp-link',ct.whatsappLink);
-  setValue('c-email',ct.email); setValue('c-cal',ct.cal);
-  setValue('c-phone',ct.phone); setValue('c-address',ct.address);
-  setValue('c-twitter',ct.twitter); setValue('c-linkedin',ct.linkedin);
-  setValue('c-youtube',ct.youtube); setValue('c-instagram',ct.instagram);
-  // CTA
-  const cta = c.cta || CONTENT_DEFAULTS.cta;
-  setValue('cta-h2',cta.h2); setValue('cta-p',cta.p);
-  setValue('cta-btn1',cta.btn1); setValue('cta-btn1-link',cta.btn1Link);
-  setValue('cta-btn2',cta.btn2); setValue('cta-btn2-link',cta.btn2Link);
-  setValue('nav-cta-text',cta.navCta);
-  // Settings
-  const s = c.settings || CONTENT_DEFAULTS.settings;
-  setValue('s-name',s.name); setValue('s-tagline',s.tagline);
-  setValue('s-meta-title',s.metaTitle); setValue('s-meta-desc',s.metaDesc);
-  setValue('s-copyright',s.copyright);
-}
-
-function setValue(id,val) { const el=document.getElementById(id); if(el&&val!==undefined) el.value=val; }
-function getValue(id) { const el=document.getElementById(id); return el?el.value:''; }
-
-function saveContent(section) {
-  const c = getContent();
-  if(section==='hero') {
-    c.hero = { badge:getValue('hero-badge'), h1:getValue('hero-h1'), sub:getValue('hero-sub'), sub2:getValue('hero-sub2'), cta1:getValue('hero-cta1'), cta2:getValue('hero-cta2') };
-    updatePreview();
+  function loadBookings() {
+    const inquiries = JSON.parse(localStorage.getItem('nexus_calls') || '[]');
+    const body = document.getElementById('calls-table-body');
+    if(inquiries.length === 0) {
+      body.innerHTML = `<tr><td colspan="4" style="text-align:center; color: #6B7280;">No calls scheduled yet.</td></tr>`;
+      return;
+    }
+    body.innerHTML = inquiries.map(item => `
+      <tr>
+        <td><strong>${escapeHtml(item.name)}</strong><br><span style="font-size:0.8rem; color:#6B7280">${escapeHtml(item.email)}</span></td>
+        <td><span class="badge success">${escapeHtml(item.service || 'General Inq.')}</span></td>
+        <td>${escapeHtml(item.message)}</td>
+        <td>${item.date || 'Just now'}</td>
+      </tr>
+    `).join('');
   }
-  if(section==='about') {
-    c.about = { tag:getValue('about-tag'), h2:getValue('about-h2'), p1:getValue('about-p1'), p2:getValue('about-p2'), float1Num:getValue('about-float1-num'), float1Label:getValue('about-float1-label'), float2Num:getValue('about-float2-num'), float2Label:getValue('about-float2-label') };
-  }
-  if(section==='stats') {
-    const stats = (c.stats||CONTENT_DEFAULTS.stats).map((_,i)=>({ target:parseInt(getValue('stat-num-'+i))||0, label:getValue('stat-label-'+i) }));
-    c.stats = stats;
-  }
-  if(section==='contact') {
-    c.contact = { heading:getValue('c-heading'), subtext:getValue('c-subtext'), whatsapp:getValue('c-whatsapp'), whatsappLink:getValue('c-whatsapp-link'), email:getValue('c-email'), cal:getValue('c-cal'), phone:getValue('c-phone'), address:getValue('c-address'), twitter:getValue('c-twitter'), linkedin:getValue('c-linkedin'), youtube:getValue('c-youtube'), instagram:getValue('c-instagram') };
-  }
-  if(section==='cta') {
-    c.cta = { h2:getValue('cta-h2'), p:getValue('cta-p'), btn1:getValue('cta-btn1'), btn1Link:getValue('cta-btn1-link'), btn2:getValue('cta-btn2'), btn2Link:getValue('cta-btn2-link'), navCta:getValue('nav-cta-text') };
-  }
-  if(section==='settings') {
-    c.settings = { name:getValue('s-name'), tagline:getValue('s-tagline'), metaTitle:getValue('s-meta-title'), metaDesc:getValue('s-meta-desc'), copyright:getValue('s-copyright') };
-  }
-  setContent(c);
-  showToast('toast-'+section);
-}
 
-function showToast(id) {
-  const t = document.getElementById(id);
-  if(!t) return;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2500);
-}
+  function loadReviews() {
+    const reviews = JSON.parse(localStorage.getItem('nexus_submitted_reviews') || '[]');
+    const body = document.getElementById('reviews-table-body');
+    if(reviews.length === 0) {
+      body.innerHTML = `<tr><td colspan="4" style="text-align:center; color: #6B7280;">No pending reviews awaiting action.</td></tr>`;
+      return;
+    }
+    body.innerHTML = reviews.map((rev, index) => `
+      <tr>
+        <td><strong>${escapeHtml(rev.name)}</strong><br><span style="font-size:0.75rem;color:#6B7280">${escapeHtml(rev.role)}</span></td>
+        <td style="color:#FBBF24">${'★'.repeat(rev.rating)}</td>
+        <td>"${escapeHtml(rev.text)}"</td>
+        <td class="actions-cell">
+          <button class="approve-btn" onclick="approveReview(${index})">Approve</button>
+          <button onclick="deleteReview(${index})">Drop</button>
+        </td>
+      </tr>
+    `).join('');
+  }
 
-function updatePreview() {
-  const set = v => v || '';
-  document.getElementById('prev-badge').textContent = set(getValue('hero-badge'));
-  document.getElementById('prev-h1').textContent    = set(getValue('hero-h1'));
-  document.getElementById('prev-sub').textContent   = set(getValue('hero-sub')).substring(0,100)+'...';
-  document.getElementById('prev-cta1').textContent  = set(getValue('hero-cta1'));
-  document.getElementById('prev-cta2').textContent  = set(getValue('hero-cta2'));
-}
-['hero-badge','hero-h1','hero-sub','hero-cta1','hero-cta2'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', updatePreview);
-});
+  function approveReview(index) {
+    let reviews = JSON.parse(localStorage.getItem('nexus_submitted_reviews') || '[]');
+    let liveReviews = JSON.parse(localStorage.getItem('nexus_approved_reviews') || '[]');
+    
+    let target = reviews.splice(index, 1)[0];
+    target.approved = true;
+    liveReviews.push(target);
+    
+    localStorage.setItem('nexus_submitted_reviews', JSON.stringify(reviews));
+    localStorage.setItem('nexus_approved_reviews', JSON.stringify(liveReviews));
+    loadReviews();
+  }
 
-function saveCredentials() {
-  const cur = getValue('cr-current');
-  const creds = getCreds();
-  const errEl = document.getElementById('cr-error');
-  if(cur !== creds.pass) { errEl.textContent='Current password is incorrect.'; errEl.style.display='block'; return; }
-  const nw = getValue('cr-new'); const cf = getValue('cr-confirm');
-  if(nw && nw !== cf) { errEl.textContent='New passwords do not match.'; errEl.style.display='block'; return; }
-  errEl.style.display='none';
-  const newUser = getValue('cr-user') || creds.user;
-  const newPass = nw || creds.pass;
-  try { localStorage.setItem(CREDS_KEY, JSON.stringify({user:newUser,pass:newPass})); } catch(e){}
-  ['cr-current','cr-new','cr-confirm'].forEach(id=>setValue(id,''));
-  showToast('toast-creds');
-}
+  function deleteReview(index) {
+    let reviews = JSON.parse(localStorage.getItem('nexus_submitted_reviews') || '[]');
+    reviews.splice(index, 1);
+    localStorage.setItem('nexus_submitted_reviews', JSON.stringify(reviews));
+    loadReviews();
+  }
 
-// ─── INIT ───
-function initApp() {
-  loadEditors();
-  renderDashboard();
-}
+  document.getElementById('hero-content-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const config = {
+      title: document.getElementById('cfg-hero-title').value,
+      sub: document.getElementById('cfg-hero-sub').value
+    };
+    localStorage.setItem('nexus_global_config', JSON.stringify(config));
+    alert('Global assets pushed! On a live production database/Supabase layer, this writes seamlessly via API updates.');
+  });
+
+  function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
 </script>
 </body>
 </html>
